@@ -165,6 +165,7 @@ public class PdfExtractorApplication{
         System.err.println("  - List files: GET http://localhost:" + HTTP_PORT + "/api/test/list");
         System.err.println("  - Extract HTML: POST http://localhost:" + HTTP_PORT + "/api/test/extract-html");
         System.err.println("  - Extract text: POST http://localhost:" + HTTP_PORT + "/api/test/extract-text");
+        System.err.println("  - Extract RAW HTML: POST http://localhost:" + HTTP_PORT + "/api/test/raw-html");
         System.err.println("Health check: http://localhost:" + HTTP_PORT + "/api/health");
         System.err.println("Files directory: ./files-to-extract/");
         System.err.println("=================================");

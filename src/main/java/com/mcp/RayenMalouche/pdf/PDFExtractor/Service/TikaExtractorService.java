@@ -19,6 +19,8 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import java.io.BufferedInputStream;
+
 public class TikaExtractorService {
     private static final String FILES_DIRECTORY = "files-to-extract";
     private final Tika tika;
@@ -47,7 +49,8 @@ public class TikaExtractorService {
 
         Map<String, Object> result = new HashMap<>();
 
-        try (InputStream stream = new FileInputStream(file)) {
+        try (InputStream fileStream = new FileInputStream(file);
+             InputStream stream = new BufferedInputStream(fileStream)) {
             // Prepare metadata
             Metadata metadata = new Metadata();
             metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, file.getName());
@@ -87,30 +90,42 @@ public class TikaExtractorService {
     }
 
     /**
-     * Extract plain text from a file
+     * Extract plain text content from a file
      */
-    public Map<String, Object> extractText(String filename) throws IOException, TikaException {
+    public Map<String, Object> extractText(String filename) throws IOException, TikaException, SAXException {
         File file = new File(FILES_DIRECTORY, filename);
 
         if (!file.exists()) {
             throw new IOException("File not found: " + filename);
         }
 
+        if (!file.canRead()) {
+            throw new IOException("Cannot read file: " + filename);
+        }
+
         Map<String, Object> result = new HashMap<>();
 
-        try (InputStream stream = new FileInputStream(file)) {
-            // Detect file type
+        try (InputStream fileStream = new FileInputStream(file);
+             InputStream stream = new BufferedInputStream(fileStream)) { // Wrap in BufferedInputStream
+            // Prepare metadata
             Metadata metadata = new Metadata();
             metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, file.getName());
-            MediaType mediaType = detector.detect(stream, metadata);
 
-            // Extract text
-            String text = tika.parseToString(file);
+            // Use BodyContentHandler for text output
+            BodyContentHandler handler = new BodyContentHandler(-1);
 
+            // Parse the document
+            ParseContext context = new ParseContext();
+            parser.parse(stream, handler, metadata, context);
+
+            // Build result
+            String text = handler.toString();
             result.put("filename", filename);
             result.put("text", text);
-            result.put("mediaType", mediaType.toString());
-            result.put("fileSize", file.length());
+            result.put("contentType", metadata.get(Metadata.CONTENT_TYPE));
+            result.put("title", metadata.get(TikaCoreProperties.TITLE));
+            result.put("author", metadata.get(TikaCoreProperties.CREATOR));
+            result.put("textLength", text.length());
 
             return result;
         }
@@ -175,7 +190,8 @@ public class TikaExtractorService {
             throw new IOException("File not found: " + filename);
         }
 
-        try (InputStream stream = new FileInputStream(file)) {
+        try (InputStream fileStream = new FileInputStream(file);
+             InputStream stream = new BufferedInputStream(fileStream)) {
             Metadata metadata = new Metadata();
             metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, file.getName());
 
