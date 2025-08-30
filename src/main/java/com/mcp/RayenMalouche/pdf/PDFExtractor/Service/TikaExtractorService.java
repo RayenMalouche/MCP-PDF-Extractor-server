@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 public class TikaExtractorService {
     private static final String FILES_DIRECTORY = "files-to-extract";
     private final Tika tika;
-    private final Parser parser;
+    private final AutoDetectParser parser;
     private final Detector detector;
 
     public TikaExtractorService() {
@@ -69,7 +69,7 @@ public class TikaExtractorService {
             result.put("html", htmlHandler.toString());
             result.put("contentType", metadata.get(Metadata.CONTENT_TYPE));
             result.put("title", metadata.get(TikaCoreProperties.TITLE));
-            result.put("author", metadata.get(Metadata.AUTHOR));
+            result.put("author", metadata.get(TikaCoreProperties.CREATOR));
             result.put("created", metadata.get(TikaCoreProperties.CREATED));
             result.put("modified", metadata.get(TikaCoreProperties.MODIFIED));
             result.put("fileSize", file.length());

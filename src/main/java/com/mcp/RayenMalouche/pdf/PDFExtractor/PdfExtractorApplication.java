@@ -25,7 +25,7 @@ import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import java.io.File;
 import java.util.List;
 
-public class PDFExtractorApplication {
+public class PdfExtractorApplication{
     private static final String VERSION = "1.0.0";
     private static final String SERVER_NAME = "tika-extractor-server";
     private static int HTTP_PORT;

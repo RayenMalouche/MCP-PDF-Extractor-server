@@ -1,307 +1,326 @@
-# PDF Extraction MCP Server
+# Tika MCP Extractor Server
 
-A Model Context Protocol (MCP) server that provides comprehensive PDF data extraction capabilities through Apache Tika and PDFBox integration. This server acts as a bridge between MCP-compatible AI assistants (like Claude Desktop) and PDF processing services.
+## Overview
+The **Tika MCP Extractor Server** is a **Model Context Protocol (MCP)** compliant server that leverages **Apache Tika** to extract content and metadata from various file formats (e.g., PDF, DOCX, TXT, HTML, images, etc.) stored in a designated directory (`files-to-extract`). It converts extracted content to **HTML** or **plain text** and provides tools for listing available files and retrieving file metadata. The server supports both **HTTP/SSE** (for web-based integrations like MCP Inspector) and **STDIO** (for command-line or local MCP clients) transports.
+
+Built with **Java 23**, **Spring Boot** (for configuration and dependencies), **Jetty** (embedded server), and the **MCP SDK (version 0.11.0)**, this server acts as a bridge for MCP-compatible AI assistants (e.g., Claude Desktop) to interact with file content. It exposes four MCP tools: **extract-to-html**, **extract-text**, **list-available-files**, and **get-file-metadata**. Additionally, it includes REST endpoints for testing via HTTP, making it easy to verify functionality without an MCP client.
+
+This project is ideal for document processing workflows, content analysis, or integrating file extraction into AI-driven applications. It handles file parsing securely (**no internet access required**) and focuses on **local file operations**.
+
+---
 
 ## Features
 
-### Extraction Capabilities
-- **Text Extraction**: Plain text content from PDF pages with page-by-page breakdown
-- **Image Extraction**: Extract and save embedded images from PDFs
-- **Table Extraction**: Detect and extract tabular data (basic implementation)
-- **Form Field Extraction**: Extract form fields, their types, values, and properties
-- **Metadata Extraction**: Document metadata including author, title, creation date, etc.
-- **Full Extraction**: Complete extraction of all above components in one operation
+- **File Extraction to HTML/Text**: Uses Apache Tika to parse files and generate HTML (with structure preservation) or plain text output.
+- **Metadata Retrieval**: Extracts detailed metadata (e.g., title, author, content type, creation date) from files.
+- **File Listing**: Lists all files in the `files-to-extract` directory with basic info (size, last modified, MIME type).
+- **MCP Tools**: Four synchronous tools for MCP integration:
+   - `extract-to-html`: Converts file content to HTML.
+   - `extract-text`: Extracts plain text content.
+   - `list-available-files`: Returns a list of files and their details.
+   - `get-file-metadata`: Provides comprehensive file metadata.
+- **REST Testing Endpoints**:
+   - `GET /api/test/list`: List files.
+   - `POST /api/test/extract-html`: Extract to HTML.
+   - `POST /api/test/extract-text`: Extract to text.
+- **Health Check**: `GET/POST /api/health` to verify server status and directory accessibility.
+- **CORS Support**: Enabled for all test endpoints to allow web-based testing (e.g., from browsers or Postman).
+- **Configurable**: Settings like port and directory loaded from `application.properties`.
+- **Error Handling**: Robust checks for file existence, readability, and parsing errors, with JSON error responses.
+- **Logging**: Console logging for server events, tool executions, and errors.
 
-### Output Formats
-- **JSON**: Structured data format for programmatic use
-- **Markdown**: Human-readable format with proper formatting
-- **Plain Text**: Simple text output for basic needs
-- **HTML**: Rich formatted output with styling
+---
 
-### Input Methods
-- **File Path**: Relative paths to files in the `files-to-extract` directory
-- **Absolute Path**: Full system paths to PDF files
-- **Directory Listing**: List all available PDFs in the input directory
+## Prerequisites
 
-## Project Structure
+- **Java**: JDK 23 (or compatible; tested with OpenJDK 24.0.2 in the provided output).
+- **Maven**: Version 3.6+ for building and dependency management.
+- **IntelliJ IDEA (optional)**: For development; the provided output shows it's run from IntelliJ, but it works in any IDE or command line.
+- **Supported File Formats**: Any format handled by Apache Tika (PDF, Word, Excel, images, audio, etc.). For PDFs, Apache PDFBox enhances parsing.
+- **No Internet Required**: All operations are local; place files in `files-to-extract`.
 
-```
-PDFExtractor/
-├── src/main/java/com/pdf/mcp/extraction/server/PDFExtractor/
-│   ├── PDFExtractorApplication.java          # Main MCP server application
-│   ├── Config/
-│   │   └── ConfigLoader.java                 # Configuration management
-│   └── Service/
-│       ├── PDFExtractionService.java        # Core PDF processing logic
-│       └── PDFUtilityTool.java              # Utility functions
-├── src/main/resources/
-│   └── application.properties                # Server configuration
-├── files-to-extract/                        # Input directory for PDF files
-├── extracted_data/                          # Output directory for results
-│   ├── images/                              # Extracted images
-│   ├── text/                                # Text extraction results
-│   ├── tables/                              # Table extraction results
-│   ├── forms/                               # Form field results
-│   └── metadata/                            # Metadata results
-└── pom.xml                                  # Maven dependencies
+> **Note**: The server uses Tika 2.9.1, which supports a wide range of formats but may require updates for newer features.
+
+---
+
+## Installation
+
+### Clone the Repository
+```bash
+git clone <your-repository-url>
+cd PDFExtractor
 ```
 
-## Setup and Installation
+### Create the Files Directory
+The server processes files from `./files-to-extract` (configurable). Create it manually:
+```bash
+mkdir files-to-extract
+```
+Add sample files (e.g., `sample.pdf`, `document.docx`) to this directory for testing.
 
-### Prerequisites
-- Java 23 or higher
-- Maven 3.6+
-- Apache Tika and PDFBox (included as dependencies)
+### Build the Project
+Use Maven to resolve dependencies and compile:
+```bash
+mvn clean install
+```
+This generates the executable JAR in `/target`.
 
-### Installation Steps
+---
 
-1. **Clone/Create the project structure** with all the provided files
+## Configuration
+Configuration is managed via `src/main/resources/application.properties`:
+```properties
+# Tika MCP Extractor Server Configuration
+spring.application.name=TikaExtractorMCPServer
 
-2. **Install dependencies**:
-   ```bash
-   mvn clean install
-   ```
+# Server Configuration
+server.port=45453  # Default HTTP port; change as needed
 
-3. **Create directories**:
-   ```bash
-   mkdir -p files-to-extract
-   mkdir -p extracted_data
-   ```
+# Tika Configuration
+tika.max.string.length=-1  # Unlimited string length for large files
+tika.detect.language=false  # Disable language detection if not needed
 
-4. **Configure the server** by editing `src/main/resources/application.properties`:
-   ```properties
-   # Adjust paths and limits as needed
-   pdf.input.directory=files-to-extract
-   pdf.output.directory=extracted_data
-   pdf.max.file.size=50MB
-   pdf.max.pages=1000
-   ```
+# File Processing Configuration
+files.directory=files-to-extract  # Directory for input files
+files.max.size=52428800  # Max file size (50MB); adjust for larger files
+
+# Logging Configuration
+#logging.level=INFO  # Uncomment and set to DEBUG for verbose logs
+```
+- **Loading Mechanism**: `ConfigLoader.java` loads these properties at startup. Defaults are used if the file is missing.
+- **Customization**: Edit the file and rebuild/restart the server. For example, change `server.port` to `8080` for standard HTTP.
+
+The server ensures the `files.directory` exists on startup; if not, it creates it and logs a message.
+
+---
+
+## How It Functions
+
+### Core Architecture
+- **Main Entry Point (`PdfExtractorApplication.java`)**:
+   - Loads config via `ConfigLoader`.
+   - Creates `files-to-extract` if missing.
+   - Determines transport mode from command-line args (`--stdio` or `--streamable-http`).
+   - Starts STDIO or HTTP server.
+   - In HTTP mode: Uses Jetty to host MCP endpoints, test servlets, and health check.
+
+- **Service Layer (`TikaExtractorService.java`)**:
+   - Core logic for extraction using Apache Tika.
+   - `extractToHtml(filename)`: Parses file to HTML using `ToHTMLContentHandler`.
+   - `extractText(filename)`: Extracts plain text using `BodyContentHandler`.
+   - `listAvailableFiles()`: Scans directory for files, includes size, MIME type (detected via Tika).
+   - `getFileMetadata(filename)`: Parses file for metadata (e.g., title, author via `TikaCoreProperties`).
+   - Handles errors like file not found or unreadable.
+
+- **MCP Integration (`McpToolsProvider.java`)**:
+   - Defines four tools, each with schema (JSON object for params) and handler.
+   - Handlers call `TikaExtractorService` and format JSON responses.
+   - Error results are flagged as true to indicate tool failure.
+
+- **Web Layer**:
+   - `TestServlet.java`: Handles REST tests with CORS. Parses JSON requests for filename.
+   - `HealthServlet.java`: Returns server status, including directory accessibility.
+
+- **Dependencies**:
+   - Tika for parsing; PDFBox for enhanced PDF support.
+   - Jackson for JSON handling.
+   - MCP SDK for protocol compliance.
+   - Jetty for lightweight HTTP server.
+
+### Workflow Example
+```bash
+# Place sample.pdf in files-to-extract
+# Start server
+# Use MCP client to call extract-to-html
+
+{
+  "filename": "sample.pdf"
+}
+```
+Server parses file, returns JSON with HTML content.
+
+Or test via CURL:
+```bash
+curl -X POST http://localhost:45453/api/test/extract-html \
+  -H "Content-Type: application/json" \
+  -d '{"filename":"sample.pdf"}'
+```
+
+---
 
 ## Running the Server
 
-### STDIO Mode (for Claude Desktop)
-```bash
-mvn spring-boot:run -Dspring-boot.run.arguments="--stdio"
-```
-
-### HTTP Mode (for web testing)
+### HTTP/SSE Mode (Default)
+Run from command line:
 ```bash
 mvn spring-boot:run
 ```
-Server will start on `http://localhost:45451`
-
-### Streamable HTTP Mode (for MCP Inspector)
+For streamable HTTP (MCP Inspector):
 ```bash
-mvn spring-boot:run -Dspring-boot.run.arguments="--streamable-http"
+mvn spring-boot:run -- --streamable-http
+```
+Access endpoints:
+- `http://localhost:45453/` (MCP)
+- `/sse` (SSE)
+- `/api/test/*` (tests)
+- `/api/health` (health)
+
+### STDIO Mode
+```bash
+mvn spring-boot:run -- --stdio
+```
+Interact via STDIN/STDOUT for MCP requests.
+
+### From IDE (e.g., IntelliJ)
+- Run `PdfExtractorApplication` main method.
+- Native access warnings may appear (safe to ignore).
+- To suppress warnings: add `--enable-native-access=ALL-UNNAMED` to VM options.
+
+Stop the server with **Ctrl+C**.
+
+---
+
+## Usage
+
+### MCP Tools
+Integrate with MCP clients:
+- **Payload**: JSON object with tool params (e.g., `{ "filename": "file.txt" }`).
+- **Response**: JSON with status, results, or error.
+
+Tools:
+- `extract-to-html`: Returns HTML, contentType, etc.
+- `extract-text`: Returns text, word count, etc.
+- `list-available-files`: Returns file list with info.
+- `get-file-metadata`: Returns metadata map.
+
+### REST Endpoints (for Testing)
+```bash
+# List Files
+curl http://localhost:45453/api/test/list
+
+# Extract HTML
+curl -X POST http://localhost:45453/api/test/extract-html \
+  -H "Content-Type: application/json" \
+  -d '{"filename":"sample.pdf"}'
+
+# Extract Text
+curl -X POST http://localhost:45453/api/test/extract-text \
+  -H "Content-Type: application/json" \
+  -d '{"filename":"sample.pdf"}'
+
+# Health
+curl http://localhost:45453/api/health
 ```
 
-## Available Tools
+---
 
-### 1. `list-available-pdfs`
-Lists all PDF files in the `files-to-extract` directory.
+## Testing
 
-**Parameters:**
-- `outputFormat` (optional): `json`, `markdown`, `plaintext`, or `html`
-
-**Example:**
-```json
-{
-  "outputFormat": "markdown"
+### Unit/Integration Tests
+Example JUnit test:
+```java
+@Test
+void testExtractToHtml() throws Exception {
+    TikaExtractorService service = new TikaExtractorService();
+    Map<String, Object> result = service.extractToHtml("sample.pdf");
+    assertEquals("application/pdf", result.get("contentType"));
 }
 ```
-
-### 2. `extract-pdf-text`
-Extracts text content from PDF files.
-
-**Parameters:**
-- `filePath`: Path to PDF file (relative to files-to-extract or absolute)
-- `outputFormat` (optional): `json`, `markdown`, `plaintext`, or `html`
-- `pageRange` (optional): `"all"`, `"1-5"`, `"2,4,6"`, etc.
-
-**Example:**
-```json
-{
-  "filePath": "document.pdf",
-  "outputFormat": "html",
-  "pageRange": "1-3"
-}
+Run with:
+```bash
+mvn test
 ```
 
-### 3. `extract-pdf-images`
-Extracts images from PDF files.
+### Manual Testing
+- Add files to `files-to-extract`.
+- Start server.
+- Use CURL for REST endpoints.
+- For MCP: Use MCP Inspector or HTTP POST to MCP endpoint.
+- Check logs for errors.
 
-**Parameters:**
-- `filePath`: Path to PDF file
-- `outputFormat` (optional): `json`, `markdown`, `plaintext`, or `html`
-- `imageFormat` (optional): `png`, `jpg`, or `gif`
-- `pageRange` (optional): Page range specification
+### Edge Cases
+- **Non-existent file**: Error response.
+- **Large files**: Respect `files.max.size`.
+- **Unsupported formats**: Tika falls back to text extraction.
 
-### 4. `extract-pdf-tables`
-Extracts table data from PDF files.
+---
 
-**Parameters:**
-- `filePath`: Path to PDF file
-- `outputFormat` (optional): Output format
-- `pageRange` (optional): Page range specification
-
-### 5. `extract-pdf-forms`
-Extracts form field data from PDF files.
-
-**Parameters:**
-- `filePath`: Path to PDF file
-- `outputFormat` (optional): Output format
-
-### 6. `extract-pdf-metadata`
-Extracts metadata from PDF files.
-
-**Parameters:**
-- `filePath`: Path to PDF file
-- `outputFormat` (optional): Output format
-
-### 7. `extract-pdf-full`
-Performs complete extraction of all components.
-
-**Parameters:**
-- `filePath`: Path to PDF file
-- `outputFormat` (optional): Output format
-- `pageRange` (optional): Page range specification
-
-## Usage Examples
-
-### Basic Text Extraction
-1. Place your PDF in the `files-to-extract` directory
-2. Use the MCP tool:
-   ```json
-   {
-     "tool": "extract-pdf-text",
-     "parameters": {
-       "filePath": "my-document.pdf",
-       "outputFormat": "markdown"
-     }
-   }
-   ```
-
-### Complete Extraction with HTML Output
-```json
-{
-  "tool": "extract-pdf-full",
-  "parameters": {
-    "filePath": "complex-document.pdf",
-    "outputFormat": "html",
-    "pageRange": "all"
-  }
-}
+## Project Structure
+```text
+PDFExtractor/
+├── src/
+│   ├── main/
+│   │   ├── java/com/mcp/RayenMalouche/pdf/PDFExtractor/
+│   │   │   ├── PdfExtractorApplication.java  # Main server starter
+│   │   │   ├── config/ConfigLoader.java     # Properties loader
+│   │   │   ├── Service/TikaExtractorService.java  # Extraction logic
+│   │   │   ├── tools/McpToolsProvider.java  # MCP tools definition
+│   │   │   ├── web/TestServlet.java         # REST test endpoints
+│   │   │   ├── web/HealthServlet.java       # Health check
+│   │   ├── resources/application.properties # Config file
+│   ├── test/                                # Add tests here
+├── files-to-extract/                        # Input files directory
+├── pom.xml                                  # Maven dependencies
+├── README.md                                # This file
+├── target/                                  # Build artifacts
 ```
 
-### List Available Files
-```json
-{
-  "tool": "list-available-pdfs",
-  "parameters": {
-    "outputFormat": "html"
-  }
-}
-```
-
-## Configuration
-
-### application.properties Options
-```properties
-# Directories
-pdf.input.directory=files-to-extract
-pdf.output.directory=extracted_data
-
-# Processing Limits
-pdf.max.file.size=50MB
-pdf.max.pages=1000
-pdf.enable.ocr=true
-
-# Server Settings
-server.port=45451
-server.name=PDF Extraction MCP Server
-server.version=1.0.0
-
-# Output Formats
-output.format.json=true
-output.format.markdown=true
-output.format.plaintext=true
-output.format.html=true
-
-# Image Settings
-images.output.format=png
-images.max.width=2048
-images.max.height=2048
-images.quality=0.9
-```
-
-## API Endpoints (HTTP Mode)
-
-- **Health Check**: `GET/POST /api/health`
-- **Test Extraction**: `POST /api/test-extraction`
-- **MCP Protocol**: `/` (standard) or `/message` (streamable)
-- **Server-Sent Events**: `/sse`
-
-## Error Handling
-
-The server provides detailed error messages for common issues:
-- File not found
-- Invalid PDF format
-- File size exceeds limits
-- Page count exceeds limits
-- Unsupported output format
-- Processing errors
-
-## Performance Considerations
-
-- **File Size Limit**: Default 50MB (configurable)
-- **Page Limit**: Default 1000 pages (configurable)
-- **Memory Usage**: Depends on PDF complexity and image count
-- **Processing Time**: Varies with extraction type and document size
+---
 
 ## Dependencies
+From `pom.xml`:
+- Spring Boot: Core framework.
+- MCP SDK (0.11.0): MCP protocol.
+- Jetty (12.0.18): HTTP server.
+- Jackson (2.15.2): JSON.
+- Tika (2.9.1): File parsing.
+- PDFBox (3.0.1): PDF support.
+- Commons-IO/Code (2.11.0/1.15): Utilities.
 
-### Core Libraries
-- **Apache Tika 2.9.1**: Document parsing and text extraction
-- **Apache PDFBox 3.0.1**: PDF-specific operations and image extraction
-- **MCP SDK 0.11.0**: Model Context Protocol implementation
-- **Spring Boot 3.5.5**: Application framework
-- **Jackson 2.15.2**: JSON processing
+Run:
+```bash
+mvn dependency:tree
+```
 
-### Supporting Libraries
-- **Jetty 12.0.18**: HTTP server
-- **Commons IO 2.11.0**: File operations
-- **Commons Codec 1.15**: Base64 encoding
+---
+
+## Limitations
+- Deprecated APIs: MCP SDK 0.11.0 has deprecations (e.g., tool constructors)—update to latest.
+- Image Handling: Embedded images referenced but not extracted/served.
+- No File Upload: Files must be manually placed in directory.
+- Performance: Large files may slow down; no async processing.
+- Security: Local-only; no auth for endpoints.
+
+---
+
+## Future Improvements
+- Add file upload endpoint.
+- Extract/serve embedded images.
+- Update MCP SDK to latest (resolve deprecations).
+- Add async support for large files.
+- Integrate Spring Boot fully for better config/web management.
+- Add unit tests and CI/CD.
+
+---
 
 ## Troubleshooting
+- **Native Access Warnings**: IntelliJ-related; add `--enable-native-access=ALL-UNNAMED` or ignore.
+- **Port in Use**: Change `server.port` in properties.
+- **File Not Found**: Ensure files exist in `files-to-extract`.
+- **Tika Errors**: Update Tika if format unsupported.
+- **Logs**: Check console (e.g., `ERROR in extract-to-html`).
+- **Build Issues**: Run `mvn clean install`; ensure JDK 23+.
 
-### Common Issues
-
-1. **"File not found" errors**:
-    - Ensure PDF is in `files-to-extract` directory
-    - Check file permissions
-    - Verify file path spelling
-
-2. **Memory issues with large PDFs**:
-    - Reduce `pdf.max.file.size`
-    - Process files in smaller page ranges
-    - Increase JVM heap size: `-Xmx2g`
-
-3. **Image extraction fails**:
-    - Some PDFs have embedded images that can't be extracted
-    - Try different image formats (png, jpg, gif)
-
-4. **Table extraction is incomplete**:
-    - Current implementation is basic
-    - Consider using specialized libraries like Tabula for complex tables
-
-### Logs and Debugging
-- Server logs errors to `System.err`
-- Extraction progress logged for each operation
-- HTTP requests logged in standard format
+---
 
 ## License
+MIT License (assumed; add LICENSE file).
 
-This project uses various open-source libraries. Please check individual license requirements:
-- Apache Tika: Apache License 2.0
-- Apache PDFBox: Apache License 2.0
-- Spring Boot: Apache License 2.0
+---
+
+## Contact
+Maintainer: **Mohamed Rayen Malouche**  
+Email: **rayenmalouche27@gmail.com**
+
+_Last Updated: August 30, 2025_
+
