@@ -8,25 +8,16 @@ import org.apache.tika.metadata.TikaCoreProperties;
 import org.apache.tika.mime.MediaType;
 import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.parser.ParseContext;
-import org.apache.tika.parser.Parser;
 import org.apache.tika.sax.BodyContentHandler;
 import org.apache.tika.sax.ToHTMLContentHandler;
-import org.junit.Test;
 import org.xml.sax.SAXException;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 public class TikaExtractorService {
     private static final String FILES_DIRECTORY = "files-to-extract";
@@ -207,13 +198,7 @@ public class TikaExtractorService {
             );
         }
     }
-    @Test
-    public void testPdfExtraction() throws Exception {
-        TikaExtractorService service = new TikaExtractorService();
-        Map<String, Object> result = service.extractToHtml("sample.pdf");
-        assertNotNull(result.get("html"));
-        assertEquals("application/pdf", result.get("contentType"));
-    }
+
 
     // New method to enhance HTML with basic CSS (for better readability)
     private String enhanceHtml(String rawHtml) {
