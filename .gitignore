@@ -4,6 +4,10 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 src/main/resources/application.properties
+files-to-extract/sample.csv
+files-to-extract/sample.pdf
+files-to-extract/sample.docx
+files-to-extract/sample.rtf
 
 ### STS ###
 .apt_generated
