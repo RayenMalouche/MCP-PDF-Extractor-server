@@ -41,8 +41,8 @@ It also provides **REST endpoints** for testing, including a new endpoint to ser
 
 1. **Clone the Repository** (if hosted):
    ```bash
-   git clone <repository-url>
-   cd PDFExtractor
+   git clone https://github.com/RayenMalouche/MCP-PDF-Extractor-server.git
+   cd MCP-PDF-Extractor-server
    ```
 
 2. **Create the Files Directory**:
