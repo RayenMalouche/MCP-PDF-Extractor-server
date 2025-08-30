@@ -68,9 +68,15 @@ public class TikaExtractorService {
             ParseContext context = new ParseContext();
             parser.parse(stream, htmlHandler, metadata, context);
 
+            // Get raw HTML
+            String html = htmlHandler.toString();
+
+            // Enhance HTML with basic CSS for better formatting (optional improvement for "good" HTML)
+            String enhancedHtml = enhanceHtml(html);
+
             // Build result
             result.put("filename", filename);
-            result.put("html", htmlHandler.toString());
+            result.put("html", enhancedHtml);
             result.put("contentType", metadata.get(Metadata.CONTENT_TYPE));
             result.put("title", metadata.get(TikaCoreProperties.TITLE));
             result.put("author", metadata.get(TikaCoreProperties.CREATOR));
@@ -207,5 +213,25 @@ public class TikaExtractorService {
         Map<String, Object> result = service.extractToHtml("sample.pdf");
         assertNotNull(result.get("html"));
         assertEquals("application/pdf", result.get("contentType"));
+    }
+
+    // New method to enhance HTML with basic CSS (for better readability)
+    private String enhanceHtml(String rawHtml) {
+        String css = """
+            <style>
+                body { font-family: Arial, sans-serif; line-height: 1.6; margin: 20px; }
+                h1, h2, h3 { color: #333; }
+                p { margin-bottom: 10px; }
+                table { border-collapse: collapse; width: 100%; }
+                th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                img { max-width: 100%; height: auto; }
+            </style>
+            """;
+        // Inject CSS into <head> if present, or add one
+        if (rawHtml.contains("<head>")) {
+            return rawHtml.replace("<head>", "<head>" + css);
+        } else {
+            return rawHtml.replace("<html>", "<html><head>" + css + "</head>");
+        }
     }
 }
