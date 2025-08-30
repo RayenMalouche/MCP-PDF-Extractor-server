@@ -1,0 +1,20 @@
+{
+  "metadata": {
+    "meta:word-count": "70",
+    "X-TIKA:Parsed-By": "org.apache.tika.parser.DefaultParser",
+    "X-TIKA:Parsed-By-Full-Set": "org.apache.tika.parser.DefaultParser",
+    "resourceName": "sample.rtf",
+    "dcterms:created": "2024-07-15T23:26:00Z",
+    "meta:page-count": "1",
+    "Content-Type": "application/rtf",
+    "meta:character-count": "403"
+  },
+  "filename": "sample.rtf",
+  "fileSize": 55168,
+  "author": null,
+  "created": "2024-07-15T23:26:00Z",
+  "modified": null,
+  "html": "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n<head><style>\n    body { font-family: Arial, sans-serif; line-height: 1.6; margin: 20px; }\n    h1, h2, h3 { color: #333; }\n    p { margin-bottom: 10px; }\n    table { border-collapse: collapse; width: 100%; }\n    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }\n    img { max-width: 100%; height: auto; }\n</style>\n\n<meta name=\"meta:word-count\" content=\"70\">\n<meta name=\"X-TIKA:Parsed-By\" content=\"org.apache.tika.parser.DefaultParser\">\n<meta name=\"X-TIKA:Parsed-By\" content=\"org.apache.tika.parser.microsoft.rtf.RTFParser\">\n<meta name=\"resourceName\" content=\"sample.rtf\">\n<meta name=\"dcterms:created\" content=\"2024-07-15T23:26:00Z\">\n<meta name=\"meta:page-count\" content=\"1\">\n<meta name=\"Content-Type\" content=\"application/rtf\">\n<meta name=\"meta:character-count\" content=\"403\">\n<title></title>\n</head>\n<body><p><b>Tables and Lists Example</b></p>\n<p><b></b></p>\n<p><b>Table Example:</b></p>\n<p><b>Item</b></p>\n<p><b>Quantity</b></p>\n<p><b>Price</b></p>\n<p>Apple</p>\n<p>5</p>\n<p>$1.00</p>\n<p>Banana</p>\n<p>3</p>\n<p>$0.75</p>\n<p>Orange</p>\n<p>4</p>\n<p>$1.25</p>\n<p></p>\n<p><b>Bulleted List:</b></p>\n<p>·\tFirst item</p>\n<p>·\tSecond item</p>\n<p>·\tThird item</p>\n<p></p>\n<p><b>Numbered List:</b></p>\n<p>1.\tFirst step</p>\n<p>2.\tSecond step</p>\n<p>3.\tThird step</p>\n<p></p>\n<p><b>Multilevel List:</b></p>\n<p>1.\tMain topic 1</p>\n<p>·\tSubtopic 1.1</p>\n<p>·\tSubtopic 1.2</p>\n<p>2.\tMain topic 2</p>\n<p>·\tSubtopic 2.1</p>\n<p>·\tSubtopic 2.2</p>\n<p></p>\n<p></p>\n<p>---</p>\n<p></p>\n<p><i>This sample RTF (Rich Text Format) file is provided by </i><i></i><i></i><a href=\"https://sample-files.com/\"><i>Sample-Files.com</i></a><i>. Visit us for more sample files and resources.</i><i></i></p>\n<p><i></i></p>\n<p></p>\n</body></html>",
+  "title": null,
+  "contentType": "application/rtf"
+}
