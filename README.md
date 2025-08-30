@@ -47,8 +47,8 @@ This project is ideal for document processing workflows, content analysis, or in
 
 ### Clone the Repository
 ```bash
-git clone <your-repository-url>
-cd PDFExtractor
+git https://github.com/RayenMalouche/MCP-PDF-Extractor-server.git
+cd MCP-PDF-Extractor-server
 ```
 
 ### Create the Files Directory

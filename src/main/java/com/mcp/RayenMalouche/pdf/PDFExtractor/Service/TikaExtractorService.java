@@ -11,6 +11,7 @@ import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
 import org.apache.tika.sax.BodyContentHandler;
 import org.apache.tika.sax.ToHTMLContentHandler;
+import org.junit.Test;
 import org.xml.sax.SAXException;
 
 import java.io.File;
@@ -23,6 +24,9 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class TikaExtractorService {
     private static final String FILES_DIRECTORY = "files-to-extract";
@@ -196,5 +200,12 @@ public class TikaExtractorService {
                     "path", file.getAbsolutePath()
             );
         }
+    }
+    @Test
+    public void testPdfExtraction() throws Exception {
+        TikaExtractorService service = new TikaExtractorService();
+        Map<String, Object> result = service.extractToHtml("sample.pdf");
+        assertNotNull(result.get("html"));
+        assertEquals("application/pdf", result.get("contentType"));
     }
 }
