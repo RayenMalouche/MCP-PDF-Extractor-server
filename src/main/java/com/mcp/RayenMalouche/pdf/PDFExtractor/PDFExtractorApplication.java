@@ -3,11 +3,11 @@ package com.mcp.RayenMalouche.pdf.PDFExtractor;
 import com.mcp.RayenMalouche.pdf.PDFExtractor.config.ConfigLoader;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tika.mcp.extractor.server.Config.ConfigLoader;
-import com.tika.mcp.extractor.server.service.TikaExtractorService;
-import com.tika.mcp.extractor.server.tools.McpToolsProvider;
-import com.tika.mcp.extractor.server.web.TestServlet;
-import com.tika.mcp.extractor.server.web.HealthServlet;
+import com.mcp.RayenMalouche.pdf.PDFExtractor.config.ConfigLoader;
+import com.mcp.RayenMalouche.pdf.PDFExtractor.Service.TikaExtractorService;
+import com.mcp.RayenMalouche.pdf.PDFExtractor.tools.McpToolsProvider;
+import com.mcp.RayenMalouche.pdf.PDFExtractor.web.TestServlet;
+import com.mcp.RayenMalouche.pdf.PDFExtractor.web.HealthServlet;
 
 import io.modelcontextprotocol.spec.McpSchema;
 import io.modelcontextprotocol.server.McpServer;

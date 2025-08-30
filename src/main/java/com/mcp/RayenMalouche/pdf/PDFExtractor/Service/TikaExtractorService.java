@@ -4,6 +4,7 @@ import org.apache.tika.Tika;
 import org.apache.tika.detect.Detector;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
+import org.apache.tika.metadata.TikaCoreProperties;
 import org.apache.tika.mime.MediaType;
 import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.parser.ParseContext;
@@ -54,7 +55,7 @@ public class TikaExtractorService {
         try (InputStream stream = new FileInputStream(file)) {
             // Prepare metadata
             Metadata metadata = new Metadata();
-            metadata.set(Metadata.RESOURCE_NAME_KEY, file.getName());
+            metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, file.getName());
 
             // Use ToHTMLContentHandler for HTML output
             ToHTMLContentHandler htmlHandler = new ToHTMLContentHandler();
@@ -67,10 +68,10 @@ public class TikaExtractorService {
             result.put("filename", filename);
             result.put("html", htmlHandler.toString());
             result.put("contentType", metadata.get(Metadata.CONTENT_TYPE));
-            result.put("title", metadata.get(Metadata.TITLE));
+            result.put("title", metadata.get(TikaCoreProperties.TITLE));
             result.put("author", metadata.get(Metadata.AUTHOR));
-            result.put("created", metadata.get(Metadata.CREATED));
-            result.put("modified", metadata.get(Metadata.MODIFIED));
+            result.put("created", metadata.get(TikaCoreProperties.CREATED));
+            result.put("modified", metadata.get(TikaCoreProperties.MODIFIED));
             result.put("fileSize", file.length());
 
             // Add all metadata as additional info
@@ -99,7 +100,7 @@ public class TikaExtractorService {
         try (InputStream stream = new FileInputStream(file)) {
             // Detect file type
             Metadata metadata = new Metadata();
-            metadata.set(Metadata.RESOURCE_NAME_KEY, file.getName());
+            metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, file.getName());
             MediaType mediaType = detector.detect(stream, metadata);
 
             // Extract text
@@ -175,7 +176,7 @@ public class TikaExtractorService {
 
         try (InputStream stream = new FileInputStream(file)) {
             Metadata metadata = new Metadata();
-            metadata.set(Metadata.RESOURCE_NAME_KEY, file.getName());
+            metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, file.getName());
 
             // Parse to extract metadata
             BodyContentHandler handler = new BodyContentHandler(-1);
