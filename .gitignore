@@ -8,6 +8,7 @@ files-to-extract/sample.csv
 files-to-extract/sample.pdf
 files-to-extract/sample.docx
 files-to-extract/sample.rtf
+files-to-extract/*
 
 ### STS ###
 .apt_generated
