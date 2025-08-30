@@ -385,10 +385,6 @@ From `pom.xml`:
 4. Push: `git push origin feature/YourFeature`.
 5. Open a pull request with test cases and docs.
 
-## License
-
-MIT License (recommended; add a `LICENSE` file to the project).
-
 ## Contact
 
 - **Maintainer**: Mohamed Rayen Malouche
