@@ -7,7 +7,7 @@ pdf.max.pages=1000
 pdf.enable.ocr=true
 
 # Server Configuration
-server.port=45451
+server.port=45452
 server.name=PDF Extraction MCP Server
 server.version=1.0.0
 

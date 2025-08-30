@@ -10,12 +10,12 @@ public class ConfigLoader {
     static {
         try (InputStream input = ConfigLoader.class.getClassLoader().getResourceAsStream("application.properties")) {
             if (input == null) {
-                System.err.println("Sorry, unable to find application.properties");
+                System.err.println("Warning: application.properties not found, using defaults");
             } else {
                 properties.load(input);
             }
         } catch (IOException ex) {
-            ex.printStackTrace();
+            System.err.println("Error loading configuration: " + ex.getMessage());
         }
     }
 
@@ -43,39 +43,6 @@ public class ConfigLoader {
         String value = properties.getProperty(key);
         if (value != null) {
             return Boolean.parseBoolean(value);
-        }
-        return defaultValue;
-    }
-
-    public static double getDoubleProperty(String key, double defaultValue) {
-        String value = properties.getProperty(key);
-        if (value != null) {
-            try {
-                return Double.parseDouble(value);
-            } catch (NumberFormatException e) {
-                System.err.println("Invalid double value for property: " + key);
-            }
-        }
-        return defaultValue;
-    }
-
-    public static long parseSizeProperty(String key, long defaultValue) {
-        String value = properties.getProperty(key);
-        if (value != null) {
-            try {
-                value = value.toUpperCase().trim();
-                if (value.endsWith("MB")) {
-                    return Long.parseLong(value.substring(0, value.length() - 2)) * 1024 * 1024;
-                } else if (value.endsWith("KB")) {
-                    return Long.parseLong(value.substring(0, value.length() - 2)) * 1024;
-                } else if (value.endsWith("GB")) {
-                    return Long.parseLong(value.substring(0, value.length() - 2)) * 1024 * 1024 * 1024;
-                } else {
-                    return Long.parseLong(value);
-                }
-            } catch (NumberFormatException e) {
-                System.err.println("Invalid size value for property: " + key);
-            }
         }
         return defaultValue;
     }
